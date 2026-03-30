@@ -1,755 +1,559 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>SalesAI Pro - 零售通路 B2B 銷售系統</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
-    <style>
-        body { margin: 0; padding: 0; background-color: #080f1e; font-family: 'Noto Sans TC', sans-serif; color: #e2eaff; }
-        ::-webkit-scrollbar { width: 0; height: 0; }
-        .tab-btn { padding: 8px 16px; border-radius: 8px; border: none; cursor: pointer; background: transparent; color: #8da3c8; font-size: 13px; white-space: nowrap; }
-        .tab-btn.active { background: linear-gradient(135deg,#2a4a8a,#1a3a7a); color: white; border: 1px solid rgba(99,160,255,0.35); }
-        .kpi-card { background: #0d1829; border: 1px solid rgba(99,160,255,0.15); border-radius: 12px; padding: 16px; }
-        .chat-msg { padding: 10px 14px; border-radius: 12px; max-width: 85%; font-size: 13px; line-height: 1.5; border: 1px solid rgba(99,160,255,0.15); }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-        .chart-col:hover .bar-inner { filter: brightness(1.3); }
-        .tooltip-box { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #1a2f50; border: 1px solid rgba(99,160,255,0.35); border-radius: 10px; padding: 8px 16px; font-size: 12px; color: #e2eaff; z-index: 999; pointer-events: none; white-space: nowrap; }
-
-        /* ── 響應式報告樣式 ── */
-        .rpt-card { background:#0d1829; border:1px solid rgba(99,160,255,0.15); border-radius:12px; padding:14px; margin-bottom:14px; }
-        .rpt-sec-title { font-size:13px; font-weight:700; color:#7eb3ff; margin-bottom:12px; padding-bottom:8px; border-bottom:1px solid rgba(99,160,255,0.1); display:flex; align-items:center; gap:6px; }
-        /* 桌面：正常表格 */
-        .rpt-table { width:100%; border-collapse:collapse; }
-        .rpt-table th { background:#1a3a7a; color:white; font-weight:600; font-size:11px; padding:7px 6px; text-align:center; border:1px solid rgba(99,160,255,0.15); white-space:nowrap; }
-        .rpt-table td { padding:6px; font-size:11px; text-align:center; border:1px solid rgba(99,160,255,0.08); color:#c8d8f0; }
-        .rpt-table td.tdl { text-align:left; padding:6px 8px; color:#e2eaff; font-weight:500; white-space:nowrap; }
-        /* 月度明細表：強制可橫滑 */
-        .rpt-scroll { overflow-x:auto; -webkit-overflow-scrolling:touch; }
-        .rpt-scroll table { min-width:780px; border-collapse:collapse; }
-        /* KPI 數字卡片（手機業績摘要） */
-        .kpi-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-        .kpi-item { background:rgba(99,160,255,0.06); border:1px solid rgba(99,160,255,0.12); border-radius:10px; padding:12px 10px; }
-        .kpi-item .kv { font-size:22px; font-weight:700; margin-top:4px; }
-        .kpi-item .kl { font-size:10px; color:#4a6080; }
-        /* 手機版季度卡片 */
-        .q-cards { display:none; flex-direction:column; gap:8px; }
-        .q-card { background:rgba(99,160,255,0.04); border-radius:10px; border:1px solid rgba(99,160,255,0.1); padding:12px; }
-        /* 手機版通路排名卡片 */
-        .rank-cards { display:none; flex-direction:column; gap:8px; }
-        .rank-card { background:rgba(99,160,255,0.04); border-radius:10px; padding:12px; display:flex; align-items:center; gap:12px; }
-
-        @media (max-width: 640px) {
-          .rpt-card { padding:12px; }
-          /* 業績摘要改KPI卡片，隱藏表格 */
-          .summary-table { display:none; }
-          .kpi-grid { display:grid; }
-          /* 季度：隱藏表格，顯示卡片 */
-          .q-table { display:none; }
-          .q-cards { display:flex; }
-          /* 通路排名：隱藏表格，顯示卡片 */
-          .rank-table { display:none; }
-          .rank-cards { display:flex; }
-          /* 洞察文字加大 */
-          .insight-text { font-size:12px !important; }
-          .insight-title { font-size:13px !important; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SalesAI Pro</title>
+<script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;900&family=DM+Sans:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>*{box-sizing:border-box}body{margin:0;padding:0}</style>
 </head>
 <body>
 <div id="root"></div>
 <script type="text/babel">
-const { useState, useRef, useEffect } = React;
+import { useState, useRef, useMemo } from "react";
 
-// ── 從 Excel 實銷內部統計20260325.xlsx 直接讀取的真實數據 ──
-// 來源：實銷量總表，欄53(2025/1)~欄67(2026/3)
-// 擷取時間：2026-03-25，2026/03 尚無出貨紀錄
+const PERIODS   = ["25/1","25/2","25/3","25/4","25/5","25/6","25/7","25/8","25/9","25/10","25/11","25/12","26/1","26/2"];
 
-const MONTHS_LABEL = [
-  "25/1","25/2","25/3","25/4","25/5","25/6",
-  "25/7","25/8","25/9","25/10","25/11","25/12",
-  "26/1","26/2","26/3"
-];
-const MONTHS_FULL = [
-  "2025/01","2025/02","2025/03","2025/04","2025/05","2025/06",
-  "2025/07","2025/08","2025/09","2025/10","2025/11","2025/12",
-  "2026/01","2026/02","2026/03"
-];
-
-const PRODUCT_DATA = [
-  {
-    key: "karaoke",
-    label: "🎤 家用K歌",
-    color: "#f5c842",
-    glow: "rgba(245,200,66,0.5)",
-    dim: "rgba(245,200,66,0.12)",
-    border: "rgba(245,200,66,0.4)",
-    // 實銷量總表 第83列 家用K歌總計
-    values: [194, 79, 42, 60, 54, 51, 61, 51, 60, 43, 44, 41, 77, 506, 0],
+const DATA = {
+  家用K歌:   { color:"#3b82f6", light:"#1e3a5f",
+    實體: [194,79,42,60,54,51,61,51,60,43,44,41, 77,506],
+    電商: [ 77,23,29,19,18,21,13,19,20,17,24,35, 64, 23],
   },
-  {
-    key: "carmic",
-    label: "🎙 車用麥克風",
-    color: "#4ff7c8",
-    glow: "rgba(79,247,200,0.5)",
-    dim: "rgba(79,247,200,0.12)",
-    border: "rgba(79,247,200,0.4)",
-    // 實銷量總表 第99列 車用麥克風總計
-    values: [0, 0, 0, 0, 0, 0, 0, 21, 8, 15, 7, 11, 18, 20, 0],
+  車用麥克風: { color:"#10b981", light:"#052e16",
+    實體: [  0, 0, 0, 0, 0, 0, 0,21, 8,15, 7,11,  0,  0],
+    電商: [  0, 0, 0, 8, 6, 1,15,64,36,31,26,56, 35,  4],
   },
-  {
-    key: "conference",
-    label: "📡 會議機",
-    color: "#7eb3ff",
-    glow: "rgba(126,179,255,0.5)",
-    dim: "rgba(126,179,255,0.12)",
-    border: "rgba(126,179,255,0.4)",
-    // 實銷量總表 第107列 會議機總計
-    values: [1, 0, 0, 1, 0, 0, 3, 2, 1, 1, 0, 2, 1, 0, 0],
+  會議機:    { color:"#f59e0b", light:"#451a03",
+    實體: [  1, 0, 0, 1, 0, 0, 3, 2, 1, 1, 0, 2,  0,  0],
+    電商: [  9,14, 7, 4,25,12,13,10,16, 6,12, 5,  2,  1],
   },
+};
+
+const LINES = Object.keys(DATA);
+const LM = {}, LT = {};
+LINES.forEach(l => {
+  LM[l] = DATA[l].實體.map((v,i) => v + DATA[l].電商[i]);
+  const p = DATA[l].實體, e = DATA[l].電商;
+  LT[l] = {
+    實體: p.reduce((s,v)=>s+v,0), 電商: e.reduce((s,v)=>s+v,0),
+    合計: p.reduce((s,v)=>s+v,0)+e.reduce((s,v)=>s+v,0),
+    y25實: p.slice(0,12).reduce((s,v)=>s+v,0), y25電: e.slice(0,12).reduce((s,v)=>s+v,0),
+    y26實: p.slice(12).reduce((s,v)=>s+v,0),   y26電: e.slice(12).reduce((s,v)=>s+v,0),
+  };
+  LT[l].y25 = LT[l].y25實+LT[l].y25電;
+  LT[l].y26 = LT[l].y26實+LT[l].y26電;
+});
+const grandM   = PERIODS.map((_,i) => LINES.reduce((s,l)=>s+LM[l][i],0));
+const grandTot = grandM.reduce((s,v)=>s+v,0);
+const physTot  = LINES.reduce((s,l)=>s+LT[l].實體,0);
+const ecTot    = LINES.reduce((s,l)=>s+LT[l].電商,0);
+
+const CLIENTS = [
+  { id:"C01", name:"家樂福",     dealer:"馬艾", myContact:"蕭總", dealerPM:"歐尼爾", channelContact:"",           type:"實體", industry:"量販",    stage:"成交",  y2025:265, products:["家用K歌"] },
+  { id:"C02", name:"全國電子",   dealer:"馬艾", myContact:"蕭總", dealerPM:"Alan",   channelContact:"",           type:"實體", industry:"消費電子", stage:"成交",  y2025:171, products:["家用K歌"] },
+  { id:"C03", name:"燦坤",       dealer:"馬艾", myContact:"蕭總", dealerPM:"Alan",   channelContact:"",           type:"實體", industry:"消費電子", stage:"成交",  y2025:62,  products:["家用K歌"] },
+  { id:"C04", name:"順發",       dealer:"馬艾", myContact:"蕭總", dealerPM:"歐尼爾", channelContact:"",           type:"實體", industry:"消費電子", stage:"成交",  y2025:4,   products:["家用K歌"] },
+  { id:"C05", name:"馬艾網路",   dealer:"馬艾", myContact:"蕭總", dealerPM:"張家豪", channelContact:"",           type:"實體", industry:"網路",     stage:"成交",  y2025:14,  products:["家用K歌"] },
+  { id:"C06", name:"好市多",     dealer:"建達", myContact:"Sean", dealerPM:"Will",   channelContact:"Maxine",     type:"實體", industry:"倉儲量販", stage:"成交",  y2025:366, products:["家用K歌"], note:"2026/2月單月366台(K1M好市多版)" },
+  { id:"C07", name:"東隆",       dealer:"建達", myContact:"Sean", dealerPM:"",       channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:80,  products:["家用K歌"] },
+  { id:"C08", name:"三井",       dealer:"建達", myContact:"Sean", dealerPM:"",       channelContact:"陳美如",     type:"實體", industry:"消費電子", stage:"成交",  y2025:3,   products:["家用K歌"] },
+  { id:"C09", name:"希金",       dealer:"建達", myContact:"Sean", dealerPM:"",       channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:7,   products:["家用K歌"] },
+  { id:"C10", name:"士展",       dealer:"建達", myContact:"Sean", dealerPM:"",       channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:1,   products:["家用K歌"] },
+  { id:"C11", name:"大全聯",     dealer:"直營", myContact:"",     dealerPM:"",       channelContact:"Emmett",     type:"實體", industry:"量販",     stage:"成交",  y2025:50,  products:["家用K歌"] },
+  { id:"C12", name:"車麗屋",     dealer:"直營", myContact:"",     dealerPM:"",       channelContact:"陳凱文",     type:"實體", industry:"汽車百貨", stage:"成交",  y2025:66,  products:["車用麥克風","家用K歌"] },
+  { id:"C13", name:"民視",       dealer:"直營", myContact:"",     dealerPM:"",       channelContact:"Jessica",    type:"實體", industry:"電視購物", stage:"成交",  y2025:4,   products:["家用K歌"] },
+  { id:"C14", name:"名展新竹",   dealer:"直營", myContact:"",     dealerPM:"智淵",   channelContact:"Iris(網路)", type:"實體", industry:"影音零售", stage:"成交",  y2025:42,  products:["家用K歌","車用麥克風"] },
+  { id:"C15", name:"誠鴻音響",   dealer:"直營", myContact:"",     dealerPM:"廖經理", channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:28,  products:["家用K歌","車用麥克風"] },
+  { id:"C16", name:"映象音響",   dealer:"直營", myContact:"",     dealerPM:"小娟姐", channelContact:"各門市",     type:"實體", industry:"音響",     stage:"成交",  y2025:16,  products:["家用K歌"], note:"中華路-小茹姐、Sogo忠孝/復興-士賢、台中中友-林吉聰、台茂-阿興、高雄-田先生" },
+  { id:"C17", name:"概念音響",   dealer:"直營", myContact:"",     dealerPM:"理事長", channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:13,  products:["家用K歌"] },
+  { id:"C18", name:"亞哥音響",   dealer:"直營", myContact:"",     dealerPM:"光哥",   channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:14,  products:["家用K歌"] },
+  { id:"C19", name:"澄名影音",   dealer:"直營", myContact:"",     dealerPM:"Shane",  channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:3,   products:["家用K歌"] },
+  { id:"C20", name:"柏格登",     dealer:"直營", myContact:"",     dealerPM:"劉昌沛", channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:3,   products:["家用K歌"] },
+  { id:"C21", name:"元美電器",   dealer:"直營", myContact:"",     dealerPM:"陳皇吉", channelContact:"",           type:"實體", industry:"電器",     stage:"成交",  y2025:5,   products:["家用K歌"] },
+  { id:"C22", name:"三越音響",   dealer:"直營", myContact:"",     dealerPM:"呂小姐/王孝綱",channelContact:"",    type:"實體", industry:"音響",     stage:"成交",  y2025:2,   products:["家用K歌"], note:"總店-呂小姐、青埔店-王孝綱" },
+  { id:"C23", name:"傑克音響",   dealer:"直營", myContact:"",     dealerPM:"黃信喨", channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:10,  products:["家用K歌"] },
+  { id:"C24", name:"永悅電器",   dealer:"直營", myContact:"",     dealerPM:"葉永川", channelContact:"",           type:"實體", industry:"電器",     stage:"成交",  y2025:12,  products:["家用K歌"] },
+  { id:"C25", name:"智律音響",   dealer:"直營", myContact:"",     dealerPM:"張濱峰", channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:1,   products:["家用K歌"] },
+  { id:"C26", name:"億立",       dealer:"直營", myContact:"",     dealerPM:"林信佑", channelContact:"",           type:"實體", industry:"電器",     stage:"成交",  y2025:1,   products:["家用K歌"] },
+  { id:"C27", name:"超泓影音",   dealer:"直營", myContact:"",     dealerPM:"李昆璟", channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:5,   products:["家用K歌"] },
+  { id:"C28", name:"傑威爾",     dealer:"直營", myContact:"",     dealerPM:"周子傑", channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:1,   products:["家用K歌"] },
+  { id:"C29", name:"奇享科技",   dealer:"直營", myContact:"",     dealerPM:"張修廷", channelContact:"",           type:"實體", industry:"科技",     stage:"成交",  y2025:3,   products:["家用K歌"] },
+  { id:"C30", name:"世華音響",   dealer:"直營", myContact:"",     dealerPM:"許崇禧", channelContact:"",           type:"實體", industry:"音響",     stage:"成交",  y2025:1,   products:["家用K歌"] },
+  { id:"C31", name:"德悅",       dealer:"直營", myContact:"",     dealerPM:"Angela", channelContact:"",           type:"實體", industry:"電器",     stage:"成交",  y2025:1,   products:["家用K歌"] },
+  { id:"C32", name:"皇銘電器",   dealer:"直營", myContact:"",     dealerPM:"鄭明煌", channelContact:"",           type:"實體", industry:"電器",     stage:"成交",  y2025:3,   products:["家用K歌"] },
+  { id:"C33", name:"瓦器",       dealer:"直營", myContact:"",     dealerPM:"Geoffery / 鍾欣儒",channelContact:"",type:"實體",industry:"音響",     stage:"成交",  y2025:9,   products:["家用K歌","車用麥克風"] },
+  { id:"C34", name:"富邦媒體(MOMO)", dealer:"直營", myContact:"", dealerPM:"冠文",   channelContact:"",           type:"電商", industry:"電視購物", stage:"成交",  y2025:453, products:["家用K歌","車用麥克風","會議機"] },
+  { id:"C35", name:"PChome",     dealer:"直營", myContact:"",     dealerPM:"梵偉",   channelContact:"",           type:"電商", industry:"網路購物", stage:"成交",  y2025:103, products:["家用K歌","會議機"] },
+  { id:"C36", name:"官網(含Jack/VeGa)", dealer:"直營", myContact:"", dealerPM:"",   channelContact:"",           type:"電商", industry:"官網直銷", stage:"成交",  y2025:206, products:["車用麥克風","家用K歌"] },
+  { id:"C37", name:"蝦皮",       dealer:"直營", myContact:"",     dealerPM:"手機(不固定)",channelContact:"",      type:"電商", industry:"電商平台", stage:"成交",  y2025:34,  products:["車用麥克風","家用K歌"] },
+  { id:"C38", name:"Yahoo購物",  dealer:"直營", myContact:"",     dealerPM:"裕庭",   channelContact:"",           type:"電商", industry:"網路購物", stage:"成交",  y2025:20,  products:["家用K歌","會議機"] },
+  { id:"C39", name:"中嘉寬頻",   dealer:"直營", myContact:"",     dealerPM:"Nini",   channelContact:"",           type:"實體", industry:"有線電視", stage:"洽談中",y2025:0,   products:["家用K歌"], note:"預計2026/8月，200台 K1M標準版" },
+  { id:"C40", name:"好市多 Q3商機", dealer:"建達", myContact:"Sean", dealerPM:"Will", channelContact:"Maxine",   type:"實體", industry:"倉儲量販", stage:"洽談中",y2025:0,   products:["家用K歌"], note:"預計2026/9月，1,500台 K1M好市多版" },
 ];
 
-const RETAIL_CHANNELS = [
-  { id:"R001", name:"家樂福",        type:"量販零售",     stage:"成交",  note:"CSM-202TA K1，2026/2: 42台" },
-  { id:"R002", name:"Costco 好市多", type:"倉儲量販",     stage:"成交",  note:"主力通路，2026/2 貢獻 366 台" },
-  { id:"R003", name:"全國電子",      type:"消費電子零售", stage:"洽談中", note:"CSM-202TA K1，2026/2: 39台" },
-  { id:"R004", name:"燦坤",          type:"消費電子零售", stage:"提案中", note:"2026/2: 9台" },
-  { id:"R005", name:"順發",          type:"消費電子零售", stage:"評估中", note:"量少，維持中" },
-  { id:"R006", name:"車麗屋",        type:"汽車百貨零售", stage:"初接觸", note:"車用+家用K歌" },
-  { id:"R007", name:"民視電視購物",  type:"電視購物",     stage:"洽談中", note:"特定時段促銷" },
-  { id:"R008", name:"名展新竹",      type:"影音零售",     stage:"提案中", note:"2026/2: 7台" },
+const PRODUCTS = [
+  { id:"P01", line:"家用K歌",    name:"CSM-202TA K1 無線專業版",    sku:"K1專業版",    desc:"家用K歌旗艦，AI音效，雙麥克風" },
+  { id:"P02", line:"家用K歌",    name:"CSM-202TA K1 豪華家庭版",    sku:"K1豪華版",    desc:"四麥設計，適合家庭聚會" },
+  { id:"P03", line:"家用K歌",    name:"CSM-202TA K1M 好市多版",     sku:"K1M好市多版", desc:"好市多專屬，2026/9預計1,500台" },
+  { id:"P04", line:"家用K歌",    name:"CSM-202TA K1M 標準版",       sku:"K1M標準版",   desc:"標準通路版，中嘉寬頻洽談中200台" },
+  { id:"P05", line:"家用K歌",    name:"CSM-202TA X3 無線專業版",    sku:"X3專業版",    desc:"入門機型，性價比首選" },
+  { id:"P06", line:"家用K歌",    name:"CSM-202TA 麥克風組",         sku:"麥克風",      desc:"K歌美聲雙麥克風，獨立販售" },
+  { id:"P07", line:"車用麥克風", name:"TBM-110A/B 雙麥組",          sku:"TBM雙麥組",   desc:"全無線車用直播K麥，主副麥配置" },
+  { id:"P08", line:"車用麥克風", name:"TBM-110A 主麥",              sku:"TBM-110A",    desc:"全無線車用直播K麥，主麥單售" },
+  { id:"P09", line:"車用麥克風", name:"TBM-110B 副麥",              sku:"TBM-110B",    desc:"全無線車用直播K麥，副麥單售" },
+  { id:"P10", line:"會議機",     name:"CSP-102 藍牙會議喇叭（黑）", sku:"會議機(黑)",  desc:"360°收音，藍牙5.0，10人會議室" },
+  { id:"P11", line:"會議機",     name:"CSP-102 藍牙會議喇叭（白）", sku:"會議機(白)",  desc:"360°收音，藍牙5.0，白色款" },
 ];
 
-const stageColor = (s) => ({
-  "成交":  { bg:"rgba(45,212,168,0.15)", color:"#2dd4a8", border:"rgba(45,212,168,0.3)" },
-  "提案中":{ bg:"rgba(79,142,247,0.15)", color:"#7eb3ff", border:"rgba(79,142,247,0.3)" },
-  "洽談中":{ bg:"rgba(167,139,250,0.15)",color:"#a78bfa", border:"rgba(167,139,250,0.3)" },
-  "評估中":{ bg:"rgba(245,166,35,0.15)", color:"#f5a623", border:"rgba(245,166,35,0.3)" },
-  "初接觸":{ bg:"rgba(120,120,120,0.15)",color:"#aaaaaa", border:"rgba(120,120,120,0.3)" },
-}[s] || { bg:"#222", color:"#aaa", border:"#444" });
-
-function Badge({ label }) {
-  const s = stageColor(label);
-  return <span style={{ padding:"3px 9px", borderRadius:6, fontSize:11, fontWeight:500,
-    background:s.bg, color:s.color, border:`1px solid ${s.border}`, whiteSpace:"nowrap" }}>{label}</span>;
+async function callClaude(messages, system) {
+  const res = await fetch("https://api.anthropic.com/v1/messages", {
+    method:"POST", headers:{"Content-Type":"application/json"},
+    body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:1200, system, messages }),
+  });
+  const d = await res.json();
+  return d.content?.map(b=>b.text||"").join("") || "AI 無法回應";
 }
 
-// ── 產品銷售圖表 ──
-function ProductSalesChart() {
-  const [tooltip, setTooltip] = useState(null);
-  const [activeKey, setActiveKey] = useState(null);
-  const BAR_H = 90;
-
-  const visMax = { karaoke: 530, carmic: 25, conference: 4 };
-
-  function barH(val, key) {
-    if (!val || val <= 0) return 2;
-    return Math.max(4, Math.round((val / visMax[key]) * BAR_H));
-  }
-
+function Spark({ data, color, h=34 }) {
+  const max = Math.max(...data,1); const W=110;
+  const pts = data.map((v,i)=>`${(i/(data.length-1))*W},${h-(v/max)*h}`).join(" ");
   return (
-    <div className="kpi-card" style={{ marginBottom: 16 }}>
-      {/* 標題列 */}
-      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:14, flexWrap:"wrap", gap:6 }}>
-        <div style={{ fontSize:13, fontWeight:600 }}>📊 產品銷售趨勢（2025/01 – 2026/03）</div>
-        <div style={{ display:"flex", gap:6, flexWrap:"wrap" }}>
-          {PRODUCT_DATA.map(p => (
-            <button key={p.key} onClick={() => setActiveKey(activeKey === p.key ? null : p.key)}
-              style={{ fontSize:10, padding:"3px 8px", borderRadius:6, cursor:"pointer",
-                border:`1px solid ${p.border}`,
-                background: activeKey === p.key ? p.dim : "transparent",
-                color: p.color }}>
-              {p.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {PRODUCT_DATA.map((prod) => {
-        if (activeKey && activeKey !== prod.key) return null;
-        const peak = Math.max(...prod.values);
-        const total = prod.values.reduce((a,b)=>a+b,0);
-        return (
-          <div key={prod.key} style={{ marginBottom:22, animation:"fadeIn 0.35s ease" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-              <div style={{ fontSize:11, color:prod.color, fontWeight:600 }}>{prod.label}</div>
-              <div style={{ fontSize:10, color:"#4a6080" }}>
-                累計 <span style={{color:prod.color}}>{total}</span> 台 ｜ 峰值 <span style={{color:prod.color}}>{peak}</span> 台
-              </div>
-            </div>
-
-            {/* 長條圖 */}
-            <div style={{ display:"flex", alignItems:"flex-end", gap:3, height: BAR_H + 32 }}>
-              {prod.values.map((val, mi) => {
-                const h = barH(val, prod.key);
-                const isPeak = val === peak && val > 0;
-                const is2026 = mi >= 12;
-                const isLatest = mi === 14; // 2026/03 尚無資料
-                return (
-                  <div key={mi} className="chart-col" style={{ display:"flex", flexDirection:"column", alignItems:"center", flex:1, gap:2, cursor:"pointer" }}
-                    onMouseEnter={() => setTooltip({ label: prod.label, month: MONTHS_FULL[mi], val, isPeak })}
-                    onMouseLeave={() => setTooltip(null)}>
-                    {/* 數值標籤 */}
-                    <div style={{ fontSize:8, height:14, display:"flex", alignItems:"center",
-                      color: isPeak ? prod.color : val > 0 ? "rgba(200,220,255,0.5)" : "transparent",
-                      fontWeight: isPeak ? 700 : 400 }}>
-                      {val > 0 ? val : ""}
-                    </div>
-                    {/* 柱體 */}
-                    <div className="bar-inner" style={{
-                      width:"100%", height: h,
-                      background: isLatest
-                        ? "rgba(255,255,255,0.04)"
-                        : isPeak
-                          ? `linear-gradient(180deg, ${prod.color}, ${prod.color}88)`
-                          : val > 0
-                            ? `linear-gradient(180deg, ${prod.color}99, ${prod.color}33)`
-                            : "rgba(255,255,255,0.04)",
-                      borderRadius:"3px 3px 0 0",
-                      border: isPeak ? `1px solid ${prod.color}` : "none",
-                      boxShadow: isPeak ? `0 0 10px ${prod.glow}` : "none",
-                      transition:"filter 0.15s",
-                    }} />
-                    {/* 年份分隔線 */}
-                    {mi === 11 && (
-                      <div style={{ position:"relative", width:"100%" }}>
-                        <div style={{ position:"absolute", right:-2, bottom:0,
-                          height: BAR_H + 40, width:1, background:"rgba(99,160,255,0.25)" }} />
-                      </div>
-                    )}
-                    {/* 月份標籤 */}
-                    <div style={{ fontSize:8, color: is2026 ? "#4f8ef7" : "#3a5070",
-                      whiteSpace:"nowrap", marginTop:1 }}>{MONTHS_LABEL[mi]}</div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* 年份帶 */}
-            <div style={{ display:"flex", fontSize:9, marginTop:1 }}>
-              <div style={{ flex:12, color:"#3a5070", borderTop:"1px solid rgba(99,160,255,0.08)", paddingTop:3, textAlign:"center" }}>── 2025 ──</div>
-              <div style={{ flex:3, color:"#4f8ef7", borderTop:"1px solid rgba(79,142,247,0.25)", paddingTop:3, textAlign:"center" }}>─ 2026 ─</div>
-            </div>
-          </div>
-        );
-      })}
-
-      {tooltip && (
-        <div className="tooltip-box">
-          <strong>{tooltip.label}</strong>　{tooltip.month}　
-          <span style={{ color: "#f5c842" }}>{tooltip.val} 台</span>
-          {tooltip.isPeak && <span style={{ color:"#2dd4a8", marginLeft:6 }}>🏆 峰值</span>}
-          {tooltip.val === 0 && <span style={{ color:"#4a6080", marginLeft:6 }}>（尚無資料）</span>}
-        </div>
-      )}
-
-      <div style={{ fontSize:10, color:"#3a5070", paddingTop:8, borderTop:"1px solid rgba(99,160,255,0.06)", marginTop:4 }}>
-        💾 資料來源：實銷內部統計20260325.xlsx ｜ 2026/03 截至統計日尚無出貨紀錄
-      </div>
-    </div>
+    <svg width={W} height={h} style={{overflow:"visible"}}>
+      <polyline points={pts} fill="none" stroke={color} strokeWidth="1.5" strokeLinejoin="round" opacity="0.9"/>
+      <polyline points={`0,${h} ${pts} ${W},${h}`} fill={color} fillOpacity="0.12" stroke="none"/>
+    </svg>
   );
 }
 
-// ── 儀表板 ──
-function Dashboard() {
-  const kpis = [
-    { label:"🎤 家用K歌累計", val:"1,357台", color:"#f5c842" },
-    { label:"🎙 車用麥克風累計", val:"100台",  color:"#4ff7c8" },
-    { label:"📡 會議機累計",    val:"12台",    color:"#7eb3ff" },
-    { label:"📈 Costco占比",    val:"72.9%",   color:"#f5a623" },
-  ];
-  return (
-    <div>
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:16 }}>
-        {kpis.map(k => (
-          <div key={k.label} className="kpi-card">
-            <div style={{ fontSize:11, color:"#4a6080", marginBottom:6 }}>{k.label}</div>
-            <div style={{ fontSize:26, fontWeight:700, color:k.color }}>{k.val}</div>
-          </div>
-        ))}
-      </div>
+export default function App() {
+  const [tab, setTab]     = useState("dashboard");
+  const [chatMsgs, setChatMsgs] = useState([{ role:"assistant", content:"您好！我是您的 AI 銷售助理 👋\n\n掌握 2025/1 ～ 2026/2 完整 14 個月數據：\n• 家用K歌：1,548台（實體1,146 + 電商402）\n• 車用麥克風：344台（電商佔82%）\n• 會議機：147台（電商佔93%）\n• 全部合計：2,039台\n\n潛在商機：好市多2026/9月 1,500台、中嘉寬頻 200台\n\n有什麼我可以幫您分析的嗎？" }]);
+  const [chatInput, setChatInput] = useState("");
+  const [chatLoading, setChatLoading] = useState(false);
+  const [report, setReport]   = useState("");
+  const [rptLoading, setRptLoading] = useState(false);
+  const [cFilter, setCFilter] = useState("全部");
+  const [dFilter, setDFilter] = useState("全部");
+  const [pLine, setPLine]     = useState("全部");
+  const [expanded, setExpanded] = useState(null);
+  const chatEnd = useRef(null);
 
-      {/* 明星通路 */}
-      <div style={{ background:"linear-gradient(135deg,#0d1829,#1a7a5a)", border:"1px solid rgba(45,212,168,0.3)",
-        borderRadius:12, padding:16, marginBottom:16, display:"flex", justifyContent:"space-between", alignItems:"flex-start" }}>
-        <div>
-          <div style={{ fontSize:12, color:"#2dd4a8" }}>🏆 本月明星通路</div>
-          <div style={{ fontSize:18, fontWeight:700, marginTop:6 }}>Costco 好市多</div>
-          <div style={{ fontSize:12, color:"#8da3c8", marginTop:6, lineHeight:1.6 }}>
-            2026/2 貢獻 <strong style={{color:"#2dd4a8"}}>366 台</strong>，<br/>
-            佔當月總出貨 506 台的 <strong style={{color:"#2dd4a8"}}>72.4%</strong>
-          </div>
-        </div>
-        <div style={{ textAlign:"right" }}>
-          <div style={{ fontSize:32, fontWeight:700, color:"#2dd4a8" }}>506</div>
-          <div style={{ fontSize:12, color:"#8da3c8" }}>台 / 2026年2月</div>
-        </div>
-      </div>
+  const lc = { 家用K歌:"#3b82f6", 車用麥克風:"#10b981", 會議機:"#f59e0b" };
+  const stC = { 成交:"#10b981", 洽談中:"#f59e0b" };
+  const dlC = { 馬艾:"#8b5cf6", 建達:"#3b82f6", 直營:"#64748b" };
 
-      {/* 產品銷售圖表 */}
-      <ProductSalesChart />
+  const fClients = useMemo(()=>CLIENTS.filter(c=>{
+    if(cFilter!=="全部"&&c.type!==cFilter) return false;
+    if(dFilter!=="全部"&&c.dealer!==dFilter) return false;
+    return true;
+  }),[cFilter,dFilter]);
 
-      {/* 通路列表 */}
-      <div className="kpi-card">
-        <div style={{ fontSize:13, fontWeight:500, marginBottom:12 }}>🏪 通路銷售狀態</div>
-        {RETAIL_CHANNELS.map(c => (
-          <div key={c.id} style={{ display:"flex", justifyContent:"space-between", alignItems:"center",
-            padding:"8px 0", borderBottom:"1px solid rgba(99,160,255,0.05)" }}>
-            <div>
-              <div style={{ fontSize:12, fontWeight:500 }}>{c.name}</div>
-              <div style={{ fontSize:10, color:"#4a6080" }}>{c.note}</div>
-            </div>
-            <Badge label={c.stage} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-// ── AI 助理 ──
-function AIChat() {
-  const [msgs, setMsgs] = useState([{
-    role:"assistant",
-    text:"您好！我是 SalesAI Pro 🤖\n\n📊 已載入《實銷內部統計20260325》真實數據：\n\n🎤 家用K歌：累計 1,357 台\n   2026/2 峰值 506 台（Costco 366台，72.4%）\n\n🎙 車用麥克風：累計 100 台\n   2025/8 開始出貨，趨勢穩健\n\n📡 會議機：累計 12 台\n   小量穩定\n\n請問有什麼我可以幫您分析？"
-  }]);
-  const [input, setInput] = useState("");
-  const [loading, setLoading] = useState(false);
-  const bottomRef = useRef(null);
-
-  useEffect(() => { bottomRef.current?.scrollIntoView({ behavior:"smooth" }); }, [msgs]);
-
-  async function send() {
-    const text = input.trim();
-    if (!text || loading) return;
-    setInput("");
-    const newMsgs = [...msgs, { role:"user", text }];
-    setMsgs(newMsgs);
-    setLoading(true);
+  async function sendChat() {
+    if(!chatInput.trim()||chatLoading) return;
+    const msg=chatInput.trim(); setChatInput("");
+    const nm=[...chatMsgs,{role:"user",content:msg}];
+    setChatMsgs(nm); setChatLoading(true);
     try {
-      const sys = `你是 SalesAI Pro 的 AI 銷售助理，所有資料來自《實銷內部統計20260325.xlsx》實銷量總表。
+      const sys=`你是專業B2B銷售AI助理，服務台灣消費電子品牌（K歌音響、車用麥克風、藍牙會議機）。
 
-【真實銷售數據 2025/01~2026/03】
-家用K歌總計（CSM-202TA K1系列）：
-  194,79,42,60,54,51,61,51,60,43,44,41,77,506,0 台
-  （2026/03 截至統計日尚無出貨）
+【2025/1~2026/2 完整14個月數據】
+家用K歌：1,548台（實體1,146 + 電商402）
+車用麥克風：344台（實體62 + 電商282，電商佔82%）
+會議機：147台（實體11 + 電商136，電商佔93%）
+合計：2,039台（實體1,219 + 電商820）
 
-車用麥克風總計（TBM-110A/B）：
-  0,0,0,0,0,0,0,21,8,15,7,11,18,20,0 台
-  （2025/8開始出貨）
+【通路結構】
+馬艾經銷商→家樂福(265台,歐尼爾負責)、全國電子(171台,Alan)、燦坤(62台,Alan)、順發(4台,歐尼爾)、馬艾網路(14台,張家豪)；我方窗口蕭總
+建達經銷商→好市多(366台 2026/2月K1M,採購Maxine,建達PM Will)、東隆(80台)、三井(3台,陳美如)；我方窗口Sean
+直營→大全聯(Emmett)、車麗屋(陳凱文)、民視(Jessica)、名展新竹(智淵/Iris)、誠鴻(廖經理)、映象(小娟姐)、概念(理事長)、亞哥(光哥)等
+電商→富邦媒體MOMO(453台)、PChome(103台)、官網系(206台)、蝦皮(34台)、Yahoo(20台)
 
-會議機總計：
-  1,0,0,1,0,0,3,2,1,1,0,2,1,0,0 台
+【潛在商機】
+好市多2026/9：1,500台 K1M好市多版（Sean/Will/Maxine）
+中嘉寬頻2026/8：200台 K1M標準版（Nini）
 
-主要通路本期資料：
-- 家樂福 CSM-202TA K1：2026/2 = 42台（成交）
-- 全國電子 CSM-202TA K1：2026/2 = 39台（洽談中）
-- 燦坤 CSM-202TA K1：2026/2 = 9台（提案中）
-- 大潤發：2026/2 = 10台（成交）
-- 建達東隆：2026/2 = 6台
-- 名展新竹：2026/2 = 7台（提案中）
-- Costco 2026/2 貢獻約366台（佔506台的72.4%）
-
-請用繁體中文，簡潔且有業務見解地回答，給出具體可行的策略建議。`;
-      const res = await fetch("https://api.anthropic.com/v1/messages", {
-        method:"POST",
-        headers:{ "Content-Type":"application/json" },
-        body: JSON.stringify({
-          model:"claude-sonnet-4-20250514",
-          max_tokens:1000,
-          system: sys,
-          messages: newMsgs.map(m => ({ role:m.role, content:m.text }))
-        })
-      });
-      const data = await res.json();
-      setMsgs(p => [...p, { role:"assistant", text: data.content?.[0]?.text || "（無回應）" }]);
-    } catch {
-      setMsgs(p => [...p, { role:"assistant", text:"❌ 連線失敗，請稍後再試。" }]);
-    } finally {
-      setLoading(false);
-    }
+用繁體中文回答，專業具體。`;
+      const reply=await callClaude(nm.map(m=>({role:m.role,content:m.content})),sys);
+      setChatMsgs([...nm,{role:"assistant",content:reply}]);
+    } catch { setChatMsgs([...nm,{role:"assistant",content:"⚠️ 連線錯誤"}]); }
+    setChatLoading(false);
+    setTimeout(()=>chatEnd.current?.scrollIntoView({behavior:"smooth"}),100);
   }
 
-  return (
-    <div style={{ display:"flex", flexDirection:"column", height:"calc(100vh - 180px)" }}>
-      <div style={{ flex:1, overflowY:"auto", display:"flex", flexDirection:"column", gap:12 }}>
-        {msgs.map((m,i) => (
-          <div key={i} style={{ alignSelf: m.role==="user"?"flex-end":"flex-start" }}>
-            <div className="chat-msg" style={{
-              background: m.role==="user" ? "linear-gradient(135deg,#2a4a8a,#1a3a7a)" : "#111f35",
-              color: m.role==="user" ? "white" : "#e2eaff",
-              whiteSpace:"pre-wrap"
-            }}>{m.text}</div>
-          </div>
-        ))}
-        {loading && (
-          <div style={{ alignSelf:"flex-start" }}>
-            <div className="chat-msg" style={{ background:"#111f35", color:"#4a6080", animation:"pulse 1.2s infinite" }}>AI 思考中...</div>
-          </div>
-        )}
-        <div ref={bottomRef} />
-      </div>
-      <div style={{ display:"flex", gap:8, marginTop:12, borderTop:"1px solid #1a3a7a", paddingTop:12 }}>
-        <input value={input} onChange={e=>setInput(e.target.value)}
-          onKeyDown={e=>e.key==="Enter"&&send()}
-          style={{ flex:1, background:"#111f35", border:"1px solid rgba(99,160,255,0.2)",
-            borderRadius:10, padding:10, color:"white", outline:"none", fontSize:13 }}
-          placeholder="例：如何讓燦坤盡快成交？" />
-        <button onClick={send} disabled={loading}
-          style={{ background:loading?"#2a3a5a":"#4f8ef7", border:"none", color:"white",
-            padding:"0 16px", borderRadius:10, cursor:loading?"not-allowed":"pointer" }}>發送</button>
-      </div>
-    </div>
-  );
-}
+  async function genReport() {
+    setRptLoading(true); setReport("");
+    try {
+      const reply=await callClaude([{role:"user",content:`生成完整銷售分析報告（繁體中文）：
 
-// ── 獨立分析報告頁面（響應式）──
-function SalesReport() {
-  const MONTHS14 = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月','*1月','*2月'];
-  const IS_2026  = [0,0,0,0,0,0,0,0,0,0,0,0,1,1];
+【14個月總覽 2025/1~2026/2】
+家用K歌：1,548台（實體1,146+電商402），2025年合計1,109台，2026/1-2月439台
+車用麥克風：344台（實體62+電商282），電商佔82%，2025年8月起爆發，12月電商56台
+會議機：147台（實體11+電商136），電商佔93%，富邦媒體為主
+合計：2,039台（實體1,219+電商820，電商佔40%）
 
-  const channels = [
-    { name:'家樂福',   vals:[66,18,8,10,11,8,17,14,20,15,12,6,18,42] },
-    { name:'全國電子', vals:[40,20,7,19,14,12,13,8,12,8,9,9,13,39] },
-    { name:'建達系列', vals:[12,9,5,4,8,8,12,11,5,0,7,10,12,11] },
-    { name:'車麗屋',   vals:[4,2,2,1,1,1,0,22,6,13,7,7,4,19] },
-    { name:'燦坤',     vals:[21,5,2,4,5,3,4,4,4,5,5,0,7,9] },
-    { name:'大潤發',   vals:[24,6,0,5,1,0,2,3,1,3,1,2,6,10] },
-    { name:'名展新竹', vals:[6,9,3,0,0,9,0,0,6,3,0,6,12,9] },
-    { name:'誠鴻音響', vals:[3,0,7,2,3,0,2,0,3,3,3,5,6,1] },
-    { name:'亞哥音響', vals:[5,0,0,0,0,2,0,2,2,1,2,0,0,5] },
-    { name:'馬艾網路', vals:[0,3,0,3,3,1,2,1,0,1,0,0,0,3] },
-    { name:'民視',     vals:[2,0,1,1,0,0,0,0,0,0,0,0,1,1] },
-    { name:'其他',     vals:[12,7,7,11,8,7,8,9,10,8,6,6,8,9] },
-  ];
-  const realMonthTotal = [195,79,42,61,54,51,64,74,69,59,51,54,96,526];
-  const total14 = realMonthTotal.reduce((a,b)=>a+b,0);
-  const yr2025  = realMonthTotal.slice(0,12).reduce((a,b)=>a+b,0);
-  const yr2026  = realMonthTotal.slice(12).reduce((a,b)=>a+b,0);
+【主力通路 2025年+2026/1-2月】
+富邦媒體MOMO：453台 | 好市多(建達)：366台(2026/2月) | 家樂福(馬艾)：265台
+全國電子(馬艾)：171台 | 官網系：206台 | PChome：103台 | 東隆(建達)：80台 | 燦坤(馬艾)：62台
 
-  const quarters = [
-    { q:'2025 Q1（1–3月）',       total:316, avg:105, chg:'–',       up:null,  note:'全期最高季，1月旺季衝高' },
-    { q:'2025 Q2（4–6月）',       total:166, avg:55,  chg:'▼ -47%',  up:false, note:'淡季回落，需加強促銷' },
-    { q:'2025 Q3（7–9月）',       total:207, avg:69,  chg:'▲ +25%',  up:true,  note:'車麗屋8月爆量，回升明顯' },
-    { q:'2025 Q4（10–12月）',     total:164, avg:55,  chg:'▼ -21%',  up:false, note:'年末偏弱，補庫存備戰' },
-    { q:'2026 Q1（1–2月，未完）', total:622, avg:311, chg:'▲ +279%', up:true,  note:'2/2月526台，強勁反彈' },
-  ];
+【2026爆發】2026/2月587台（含好市多366台K1M），vs 2025月均130台，大幅成長351%
 
-  const ranks = [
-    { r:1,  name:'家樂福',   tot:265, y25:207, y26:60,  note:'最穩通路，全期第一' },
-    { r:2,  name:'全國電子', tot:223, y25:171, y26:52,  note:'2026/2大幅拉升39台' },
-    { r:3,  name:'建達系列', tot:114, y25:96,  y26:18,  note:'音響通路穩定出貨' },
-    { r:4,  name:'車麗屋',   tot:89,  y25:71,  y26:18,  note:'家用+車用雙線' },
-    { r:5,  name:'燦坤',     tot:78,  y25:66,  y26:23,  note:'12月清零需關注' },
-    { r:6,  name:'大潤發',   tot:64,  y25:50,  y26:16,  note:'穩定小量通路' },
-    { r:7,  name:'名展新竹', tot:63,  y25:48,  y26:21,  note:'音響通路可提升' },
-    { r:8,  name:'誠鴻音響', tot:38,  y25:34,  y26:7,   note:'音響通路穩健' },
-    { r:9,  name:'亞哥音響', tot:19,  y25:14,  y26:5,   note:'小型通路勿忽視' },
-    { r:10, name:'馬艾網路', tot:17,  y25:14,  y26:3,   note:'網路通路小量' },
-  ];
+【潛在商機】好市多2026/9月1,500台，中嘉寬頻2026/8月200台，合計潛在1,700台
 
-  const insights = [
-    { title:'家樂福為長期主力通路',     color:'#2dd4a8', text:'累計265台（佔18.2%），全期最穩定。建議持續深耕爭取更多陳列位置，加強K1豪華版鋪貨。' },
-    { title:'全國電子2026年強勁反彈',   color:'#7eb3ff', text:'2026/2達39台，近14個月新高。顯示可能有促銷或庫存補充，需追蹤原因並複製成功模式。' },
-    { title:'2025 Q1旺季，Q2為低谷',    color:'#f5c842', text:'1月196台最高，3月跌至42台（-79%）。建議Q1前提前備貨，Q2加強促銷力度。' },
-    { title:'車麗屋8月車用爆量需追蹤',  color:'#f5a623', text:'8月TBM-110共21台爆量（平均月銷僅6台），需確認原因，評估是否可複製至其他通路。' },
-    { title:'2026年開局強勁',           color:'#2dd4a8', text:'1-2月合計622台，月均311台，較2025年月均71台成長+338%。建議確認供貨穩定性。' },
-    { title:'小型音響通路不可忽視',      color:'#a78bfa', text:'建達東隆、誠鴻、亞哥、映象音響合計占相當比重，建議整合管理並增加服務頻率。' },
-    { title:'車用麥克風通路擴展空間大',  color:'#4ff7c8', text:'TBM-110目前僅車麗屋為主，建議主動開發汽車百貨、音響專門店擴大通路數。' },
-  ];
-
-  // 數字顏色樣式
-  function nCls(v) {
-    if (v === 0)   return { color:'#2a3a5a' };
-    if (v >= 100)  return { background:'rgba(245,200,66,0.18)', color:'#f5c842', fontWeight:700 };
-    if (v >= 60)   return { background:'rgba(79,142,247,0.15)', color:'#7eb3ff', fontWeight:600 };
-    if (v >= 20)   return { color:'#a0c4f8' };
-    return { color:'#7a9abf' };
+報告包含：1.業績摘要 2.三大產品線分析 3.通路結構與經銷商分析 4.月度趨勢 5.2026年下半年展望與行動建議`}],
+        "你是資深消費電子B2B銷售分析師，生成結構清晰、數據豐富的報告。");
+      setReport(reply);
+    } catch { setReport("⚠️ 報告生成失敗"); }
+    setRptLoading(false);
   }
 
-  const TH = { background:'#1a3a7a', color:'white', fontWeight:600, fontSize:11,
-    padding:'7px 5px', textAlign:'center', border:'1px solid rgba(99,160,255,0.15)', whiteSpace:'nowrap' };
-  const TD = { padding:'6px 5px', fontSize:11, textAlign:'center',
-    border:'1px solid rgba(99,160,255,0.08)', color:'#c8d8f0' };
-  const TDL = { ...TD, textAlign:'left', padding:'6px 8px', color:'#e2eaff', fontWeight:500, whiteSpace:'nowrap' };
+  const S = {
+    app:  {background:"#060d1a",minHeight:"100vh",color:"#e2e8f0",fontFamily:"'Noto Sans TC','DM Sans',sans-serif"},
+    hdr:  {background:"linear-gradient(135deg,#0a1628,#0f2040)",borderBottom:"1px solid #1e3a5f",padding:"0 28px",display:"flex",alignItems:"center",height:54,gap:12},
+    logo: {fontSize:17,fontWeight:900,letterSpacing:"-0.5px",background:"linear-gradient(135deg,#60a5fa,#34d399)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"},
+    nav:  {display:"flex",padding:"0 24px",background:"#0a1628",borderBottom:"1px solid #0f2540",gap:2},
+    nb:   a=>({padding:"11px 16px",border:"none",cursor:"pointer",fontSize:13,fontWeight:600,background:"transparent",color:a?"#60a5fa":"#4a6080",borderBottom:a?"2px solid #60a5fa":"2px solid transparent",transition:"all 0.15s"}),
+    wrap: {padding:"22px 26px",maxWidth:1300,margin:"0 auto"},
+    card: {background:"#0d1f38",border:"1px solid #1e3a5f",borderRadius:12,padding:"16px 18px",marginBottom:14},
+    kpi:  {background:"linear-gradient(135deg,#0d1f38,#0f2540)",border:"1px solid #1e3a5f",borderRadius:12,padding:"16px 18px",flex:1,minWidth:130},
+    kL:   {fontSize:10,color:"#4a6080",fontWeight:700,textTransform:"uppercase",letterSpacing:1.2,marginBottom:5},
+    kV:   (c="#60a5fa")=>({fontSize:24,fontWeight:900,color:c,lineHeight:1.1}),
+    th:   {textAlign:"left",padding:"8px 12px",fontSize:11,color:"#4a6080",fontWeight:700,textTransform:"uppercase",letterSpacing:0.6,borderBottom:"1px solid #1e3a5f",whiteSpace:"nowrap"},
+    td:   {padding:"10px 12px",fontSize:12,borderBottom:"1px solid #0a1628",color:"#cbd5e1",verticalAlign:"middle"},
+    bdg:  c=>({background:c+"22",color:c,padding:"2px 8px",borderRadius:99,fontSize:11,fontWeight:700,whiteSpace:"nowrap"}),
+    chp:  c=>({background:c+"22",color:c,padding:"1px 7px",borderRadius:99,fontSize:10,fontWeight:700}),
+    btn:  {padding:"9px 18px",background:"linear-gradient(135deg,#1d4ed8,#0f766e)",border:"none",borderRadius:8,color:"#fff",fontWeight:700,cursor:"pointer",fontSize:13,whiteSpace:"nowrap"},
+    bsm:  a=>({padding:"5px 12px",background:a?"#1e3a5f":"transparent",border:"1px solid #1e3a5f",borderRadius:6,color:a?"#60a5fa":"#4a6080",cursor:"pointer",fontSize:12,fontWeight:600}),
+    inp:  {background:"#060d1a",border:"1px solid #1e3a5f",borderRadius:8,padding:"10px 14px",color:"#e2e8f0",fontSize:13,outline:"none",flex:1},
+    bub:  u=>({maxWidth:"80%",padding:"10px 14px",borderRadius:u?"16px 16px 4px 16px":"16px 16px 16px 4px",background:u?"linear-gradient(135deg,#1d4ed8,#0f766e)":"#0d1f38",color:"#e2e8f0",fontSize:13,lineHeight:1.65,alignSelf:u?"flex-end":"flex-start",whiteSpace:"pre-wrap",wordBreak:"break-word"}),
+    stit: {fontSize:14,fontWeight:700,color:"#e2e8f0",marginBottom:12,display:"flex",alignItems:"center",gap:7},
+  };
+
+  const TABS=[{id:"dashboard",label:"📊 儀表板"},{id:"clients",label:"🏪 客戶管理"},{id:"products",label:"📦 品目錄"},{id:"report",label:"📋 銷售報告"},{id:"chat",label:"🤖 AI 助理"}];
 
   return (
-    <div style={{ animation:'fadeIn 0.4s ease' }}>
-
-      {/* ── 標題 ── */}
-      <div style={{ textAlign:'center', marginBottom:18 }}>
-        <div style={{ fontSize:18, fontWeight:700, color:'#7eb3ff', letterSpacing:1 }}>實銷統計分析報告</div>
-        <div style={{ fontSize:12, color:'#4f8ef7', marginTop:5 }}>2025年1月 — 2026年2月</div>
-        <div style={{ fontSize:11, color:'#4a6080', marginTop:3 }}>報告日期：2026年3月27日</div>
-      </div>
-
-      {/* ── 一、業績摘要 ── */}
-      <div className="rpt-card">
-        <div className="rpt-sec-title">一、業績摘要</div>
-
-        {/* 手機版：KPI卡片 */}
-        <div className="kpi-grid">
-          {[
-            { l:'📦 累計銷售（14個月）', v:`${total14}台`,  c:'#7eb3ff' },
-            { l:'📅 2025 全年',          v:`${yr2025}台`,   c:'#8da3c8' },
-            { l:'🚀 2026 Q1（1-2月）',   v:`${yr2026}台`,   c:'#2dd4a8' },
-            { l:'📈 2026年月均',         v:'311台/月',       c:'#f5c842' },
-            { l:'🏆 最高單月',           v:'526台',          c:'#f5a623', sub:'2026年2月' },
-            { l:'📉 最低單月',           v:'42台',           c:'#f87171', sub:'2025年3月' },
-          ].map((k,i) => (
-            <div key={i} className="kpi-item">
-              <div className="kl">{k.l}</div>
-              <div className="kv" style={{ color:k.c }}>{k.v}</div>
-              {k.sub && <div style={{ fontSize:10, color:'#4a6080', marginTop:2 }}>{k.sub}</div>}
-            </div>
-          ))}
-        </div>
-
-        {/* 桌面版：表格 */}
-        <div className="summary-table">
-          <table className="rpt-table">
-            <thead>
-              <tr>{['指標','2025全年','2026至今（1-2月）','累計統計（14個月）','備註'].map(h=>(
-                <th key={h} style={TH}>{h}</th>
-              ))}</tr>
-            </thead>
-            <tbody>
-              {[
-                ['總銷售台數',`${yr2025}台`,`${yr2026}台`,<b style={{color:'#7eb3ff'}}>{total14}台</b>,''],
-                ['月均銷售數','71台/月','311台/月','105台/月','2026年月均大幅成長'],
-                ['最高月銷','196台（1月）','526台（2月）','526台','2026/2最高'],
-                ['最低月銷','42台（3月）','96台（1月）','42台','2025/3最低'],
-                ['主力通路','家樂福（207台）','家樂福（60台）',<b style={{color:'#2dd4a8'}}>家樂福（265台）</b>,'全期第一'],
-              ].map((row,ri)=>(
-                <tr key={ri} style={{ background:ri%2===0?'rgba(99,160,255,0.03)':'transparent' }}>
-                  {row.map((cell,ci)=>(
-                    <td key={ci} style={ci===3?{...TD,background:'rgba(79,142,247,0.08)',fontWeight:600}:ci===0?TDL:TD}>{cell}</td>
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
+    <div style={S.app}>
+      <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;900&family=DM+Sans:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+      <div style={S.hdr}>
+        <div style={S.logo}>⚡ SalesAI Pro</div>
+        <span style={{color:"#2a4a6a",fontSize:11,borderLeft:"1px solid #1e3a5f",paddingLeft:12,marginLeft:4}}>台灣消費電子 B2B 通路管理</span>
+        <div style={{marginLeft:"auto",display:"flex",gap:16,alignItems:"center"}}>
+          <span style={{fontSize:11,color:"#4a6080"}}>2025/01 ─ 2026/02　合計 {grandTot.toLocaleString()}台</span>
+          <div style={{display:"flex",alignItems:"center",gap:5}}>
+            <div style={{width:6,height:6,borderRadius:"50%",background:"#10b981",boxShadow:"0 0 6px #10b981"}}/>
+            <span style={{fontSize:11,color:"#4a6080"}}>AI 連線中</span>
+          </div>
         </div>
       </div>
+      <div style={S.nav}>{TABS.map(t=><button key={t.id} style={S.nb(tab===t.id)} onClick={()=>setTab(t.id)}>{t.label}</button>)}</div>
+      <div style={S.wrap}>
 
-      {/* ── 二、各通路月度銷售明細 ── */}
-      <div className="rpt-card">
-        <div className="rpt-sec-title">二、各通路月度銷售明細</div>
-        <div style={{ fontSize:10, color:'#4a6080', marginBottom:8 }}>
-          ★ 標示為2026年月份　≥60台藍底　≥100台金色　← 左右滑動查看
-        </div>
-        <div className="rpt-scroll">
-          <table style={{ borderCollapse:'collapse', width:'100%' }}>
-            <thead>
-              <tr>
-                <th style={{...TH, textAlign:'left', minWidth:64, position:'sticky', left:0, zIndex:2}}>通路</th>
-                {MONTHS14.map((m,i)=>(
-                  <th key={m} style={{...TH, background:IS_2026[i]?'#1a5276':'#1a3a7a', minWidth:30}}>{m}</th>
+        {/* ── DASHBOARD ── */}
+        {tab==="dashboard" && (<>
+          <div style={{display:"flex",gap:12,marginBottom:16,flexWrap:"wrap"}}>
+            {[
+              {label:"14個月總計",  val:`${grandTot.toLocaleString()}台`, sub:"2025/1~2026/2",  color:"#60a5fa", data:grandM},
+              {label:"家用K歌",    val:"1,548台", sub:"實體1,146 + 電商402", color:"#3b82f6",  data:LM.家用K歌},
+              {label:"車用麥克風",  val:"344台",   sub:"電商佔82%",           color:"#10b981",  data:LM.車用麥克風},
+              {label:"會議機",     val:"147台",   sub:"電商佔93%",            color:"#f59e0b",  data:LM.會議機},
+              {label:"2026/2月",   val:"587台",   sub:"含Costco 366台",      color:"#34d399",  data:[...Array(12).fill(0),165,587]},
+            ].map((k,i)=>(
+              <div key={i} style={{...S.kpi,display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                <div>
+                  <div style={S.kL}>{k.label}</div>
+                  <div style={S.kV(k.color)}>{k.val}</div>
+                  <div style={{fontSize:10,color:"#4a6080",marginTop:4}}>{k.sub}</div>
+                </div>
+                <Spark data={k.data} color={k.color}/>
+              </div>
+            ))}
+          </div>
+
+          <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:14,marginBottom:14}}>
+            <div style={S.card}>
+              <div style={S.stit}>📈 14個月銷售趨勢</div>
+              <div style={{display:"flex",alignItems:"flex-end",gap:4,height:130,padding:"6px 0 2px"}}>
+                {PERIODS.map((p,i)=>{
+                  const kg=LM.家用K歌[i],cr=LM.車用麥克風[i],mt=LM.會議機[i],tot=kg+cr+mt;
+                  const bH=Math.max((tot/Math.max(...grandM,1))*105,tot>0?3:0);
+                  const is26=i>=12;
+                  return (
+                    <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:2}}>
+                      <span style={{fontSize:8,color:is26?"#34d399":"#4a6080",fontWeight:is26?700:400}}>{tot||""}</span>
+                      <div style={{width:"100%",height:bH,display:"flex",flexDirection:"column-reverse",borderRadius:"2px 2px 0 0",overflow:"hidden",border:is26?"1px solid #10b98144":"none"}}>
+                        {[[DATA.會議機.color,mt],[DATA.車用麥克風.color,cr],[DATA.家用K歌.color,kg]].map(([c,v],j)=>
+                          v>0&&<div key={j} style={{width:"100%",flex:`0 0 ${(v/tot)*100}%`,background:c}}/>
+                        )}
+                      </div>
+                      <span style={{fontSize:8,color:is26?"#34d399":"#4a6080",fontWeight:is26?700:400}}>{p}</span>
+                    </div>
+                  );
+                })}
+              </div>
+              <div style={{display:"flex",gap:14,marginTop:6,justifyContent:"center"}}>
+                {[["#3b82f6","家用K歌"],["#10b981","車用麥克風"],["#f59e0b","會議機"],["#34d399","2026年"]].map(([c,l])=>(
+                  <div key={l} style={{display:"flex",alignItems:"center",gap:4,fontSize:10,color:"#94a3b8"}}>
+                    <div style={{width:9,height:9,borderRadius:2,background:c}}/>{l}
+                  </div>
                 ))}
-                <th style={{...TH, background:'#145a32', minWidth:40}}>合計</th>
-              </tr>
-            </thead>
-            <tbody>
-              {channels.map((ch,ri)=>{
-                const tot = ch.vals.reduce((a,b)=>a+b,0);
+              </div>
+            </div>
+            <div style={S.card}>
+              <div style={S.stit}>🥧 產品線 × 通路</div>
+              {LINES.map(line=>{
+                const t=LT[line]; const ecPct=Math.round(t.電商/t.合計*100);
                 return (
-                  <tr key={ch.name} style={{ background:ri%2===0?'rgba(99,160,255,0.02)':'transparent' }}>
-                    <td style={{...TDL, background:tot>=200?'rgba(45,212,168,0.08)':'#0d1829',
-                      color:tot>=200?'#2dd4a8':'#e2eaff', position:'sticky', left:0, zIndex:1}}>{ch.name}</td>
-                    {ch.vals.map((v,mi)=>(
-                      <td key={mi} style={{...TD, background:IS_2026[mi]?'rgba(26,82,118,0.15)':'transparent', ...nCls(v)}}>{v===0?'–':v}</td>
-                    ))}
-                    <td style={{...TD, fontWeight:700,
-                      background:tot>=200?'rgba(45,212,168,0.15)':tot>=100?'rgba(79,142,247,0.1)':'rgba(99,160,255,0.05)',
-                      color:tot>=200?'#2dd4a8':tot>=100?'#7eb3ff':'#c8d8f0'}}>{tot}</td>
-                  </tr>
+                  <div key={line} style={{marginBottom:13}}>
+                    <div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                      <span style={{fontSize:12,fontWeight:700,color:DATA[line].color}}>{line}</span>
+                      <span style={{fontSize:11,color:"#94a3b8"}}>{t.合計}台</span>
+                    </div>
+                    <div style={{height:7,background:"#0f2540",borderRadius:99,overflow:"hidden"}}>
+                      <div style={{height:"100%",width:`${ecPct}%`,background:`linear-gradient(90deg,${DATA[line].color}88,${DATA[line].color})`,borderRadius:99}}/>
+                    </div>
+                    <div style={{display:"flex",justifyContent:"space-between",marginTop:3}}>
+                      <span style={{fontSize:9,color:"#4a6080"}}>實體 {t.實體}台</span>
+                      <span style={{fontSize:9,color:DATA[line].color}}>電商 {ecPct}% ({t.電商}台)</span>
+                    </div>
+                  </div>
                 );
               })}
-              <tr style={{ borderTop:'2px solid rgba(99,160,255,0.3)' }}>
-                <td style={{...TDL, background:'#1a3a7a', color:'white', fontWeight:700, position:'sticky', left:0, zIndex:1}}>月合計</td>
-                {realMonthTotal.map((v,mi)=>(
-                  <td key={mi} style={{...TD, background:IS_2026[mi]?'rgba(26,82,118,0.7)':'rgba(42,74,138,0.6)', color:'white', fontWeight:700}}>{v}</td>
+              <div style={{borderTop:"1px solid #1e3a5f",paddingTop:9,marginTop:4,display:"grid",gridTemplateColumns:"1fr 1fr",gap:6}}>
+                {[["實體合計","#60a5fa",physTot],["電商合計","#34d399",ecTot]].map(([l,c,v])=>(
+                  <div key={l} style={{background:"#060d1a",borderRadius:7,padding:"8px 10px",border:"1px solid #1e3a5f"}}>
+                    <div style={{fontSize:9,color:"#4a6080",marginBottom:2}}>{l}</div>
+                    <div style={{fontSize:16,fontWeight:900,color:c}}>{v}台</div>
+                  </div>
                 ))}
-                <td style={{...TD, background:'rgba(20,90,50,0.6)', color:'#2dd4a8', fontWeight:700}}>{total14}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      {/* ── 三、季度銷售趨勢分析 ── */}
-      <div className="rpt-card">
-        <div className="rpt-sec-title">三、季度銷售趨勢分析</div>
-
-        {/* 桌面表格 */}
-        <div className="q-table">
-          <table className="rpt-table">
-            <thead>
-              <tr>{['季度','銷售台數','平均月銷','環比變化','說明'].map(h=>(
-                <th key={h} style={TH}>{h}</th>
-              ))}</tr>
-            </thead>
-            <tbody>
-              {quarters.map((q,ri)=>(
-                <tr key={ri} style={{ background:ri===4?'rgba(245,200,66,0.06)':ri%2===0?'rgba(99,160,255,0.02)':'transparent' }}>
-                  <td style={{...TDL, color:ri===4?'#f5c842':'#e2eaff', fontWeight:ri===4?700:500}}>{q.q}</td>
-                  <td style={{...TD, fontWeight:700, color:ri===4?'#f5c842':'#7eb3ff'}}>{q.total}台</td>
-                  <td style={TD}>{q.avg}台/月</td>
-                  <td style={{...TD, color:q.up===true?'#2dd4a8':q.up===false?'#f87171':'#4a6080', fontWeight:q.up!==null?600:400}}>{q.chg}</td>
-                  <td style={{...TD, textAlign:'left', color:'#8da3c8'}}>{q.note}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-
-        {/* 手機卡片 */}
-        <div className="q-cards">
-          {quarters.map((q,i)=>(
-            <div key={i} className="q-card" style={{ borderLeft:`3px solid ${i===4?'#f5c842':q.up?'#2dd4a8':'#f87171'}` }}>
-              <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:6 }}>
-                <div style={{ fontSize:12, fontWeight:600, color:i===4?'#f5c842':'#e2eaff', flex:1 }}>{q.q}</div>
-                <div style={{ fontSize:16, fontWeight:700, color:i===4?'#f5c842':'#7eb3ff', marginLeft:8 }}>{q.total}台</div>
               </div>
-              <div style={{ display:'flex', gap:10, marginBottom:6 }}>
-                <span style={{ fontSize:11, color:'#8da3c8' }}>月均 {q.avg}台</span>
-                <span style={{ fontSize:11, fontWeight:600, color:q.up===true?'#2dd4a8':q.up===false?'#f87171':'#4a6080' }}>{q.chg}</span>
-              </div>
-              <div style={{ fontSize:11, color:'#8da3c8' }}>{q.note}</div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
 
-      {/* ── 四、通路排名與分析 ── */}
-      <div className="rpt-card">
-        <div className="rpt-sec-title">四、通路排名與分析</div>
-
-        {/* 桌面表格 */}
-        <div className="rank-table">
-          <table className="rpt-table">
-            <thead>
-              <tr>{['排','通路','14月合計','2025','2026(1-2月)','趨勢觀察'].map(h=>(
-                <th key={h} style={TH}>{h}</th>
-              ))}</tr>
-            </thead>
-            <tbody>
-              {ranks.map((r,ri)=>(
-                <tr key={ri} style={{ background:r.r<=3?'rgba(245,200,66,0.04)':'rgba(99,160,255,0.02)' }}>
-                  <td style={{...TD, fontWeight:700, color:r.r===1?'#f5c842':r.r===2?'#c8d8f0':r.r===3?'#f5a623':'#4a6080'}}>{r.r}</td>
-                  <td style={{...TDL, color:r.r<=3?'#e2eaff':'#c8d8f0', fontWeight:r.r<=3?700:400}}>{r.name}</td>
-                  <td style={{...TD, color:r.r<=3?'#2dd4a8':'#7eb3ff', fontWeight:r.r<=3?700:500, background:r.r<=3?'rgba(45,212,168,0.08)':'transparent'}}>{r.tot}台</td>
-                  <td style={TD}>{r.y25}台</td>
-                  <td style={{...TD, color:r.y26>=30?'#7eb3ff':'#8da3c8'}}>{r.y26}台</td>
-                  <td style={{...TD, textAlign:'left', color:'#8da3c8', fontSize:10}}>{r.note}</td>
-                </tr>
+          <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:14}}>
+            <div style={S.card}>
+              <div style={S.stit}>🏆 主力通路 Top 10</div>
+              {[
+                ["富邦媒體(MOMO)",453,"#f59e0b","電商直營"],
+                ["好市多(建達)",  366,"#34d399","建達"],
+                ["官網系",        206,"#60a5fa","電商直營"],
+                ["家樂福(馬艾)",  265,"#8b5cf6","馬艾"],
+                ["全國電子(馬艾)",171,"#8b5cf6","馬艾"],
+                ["PChome",       103,"#60a5fa","電商直營"],
+                ["東隆(建達)",     80,"#3b82f6","建達"],
+                ["車麗屋",         66,"#94a3b8","直營"],
+                ["燦坤(馬艾)",     62,"#8b5cf6","馬艾"],
+                ["大全聯",         50,"#94a3b8","直營"],
+              ].map(([name,val,color,type],i)=>(
+                <div key={i} style={{display:"flex",alignItems:"center",gap:9,padding:"4px 0",borderBottom:"1px solid #0a1628"}}>
+                  <span style={{fontSize:10,color:"#4a6080",width:14,textAlign:"right"}}>{i+1}</span>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      <span style={{fontSize:12,color:"#cbd5e1"}}>{name}</span>
+                      <span style={{fontSize:12,fontWeight:700,color}}>{val}台</span>
+                    </div>
+                    <div style={{height:3,background:"#0f2540",borderRadius:99,marginTop:2}}>
+                      <div style={{height:"100%",width:`${(val/453)*100}%`,background:color,borderRadius:99}}/>
+                    </div>
+                  </div>
+                  <span style={{...S.bdg(color),fontSize:10}}>{type}</span>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
 
-        {/* 手機卡片 */}
-        <div className="rank-cards">
-          {ranks.map((r,i)=>{
-            const medalColor = r.r===1?'#f5c842':r.r===2?'#c8c8c8':r.r===3?'#f5a623':'#4a6080';
-            const barW = Math.round((r.tot / 265) * 100);
-            return (
-              <div key={i} className="rank-card" style={{ borderLeft:`3px solid ${r.r<=3?medalColor:'rgba(99,160,255,0.2)'}` }}>
-                <div style={{ fontSize:18, fontWeight:700, color:medalColor, minWidth:24, textAlign:'center' }}>{r.r}</div>
-                <div style={{ flex:1 }}>
-                  <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:5 }}>
-                    <div style={{ fontSize:13, fontWeight:700, color:r.r<=3?'#e2eaff':'#c8d8f0' }}>{r.name}</div>
-                    <div style={{ fontSize:14, fontWeight:700, color:r.r<=3?'#2dd4a8':'#7eb3ff' }}>{r.tot}台</div>
-                  </div>
-                  {/* 進度條 */}
-                  <div style={{ background:'rgba(99,160,255,0.1)', borderRadius:3, height:4, marginBottom:5 }}>
-                    <div style={{ width:`${barW}%`, height:'100%', borderRadius:3,
-                      background:r.r<=3?'linear-gradient(90deg,#2dd4a8,#4f8ef7)':'rgba(99,160,255,0.4)' }} />
-                  </div>
-                  <div style={{ display:'flex', gap:12 }}>
-                    <span style={{ fontSize:10, color:'#4a6080' }}>2025: {r.y25}台</span>
-                    <span style={{ fontSize:10, color:'#4f8ef7' }}>2026(1-2月): {r.y26}台</span>
-                  </div>
-                  <div style={{ fontSize:10, color:'#6a7a90', marginTop:3 }}>{r.note}</div>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              <div style={{...S.card,background:"linear-gradient(135deg,#052e16,#064e3b)",border:"1px solid #10b98133"}}>
+                <div style={S.stit}>🚀 2026年開局爆發</div>
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:0}}>
+                  {[{l:"2026/1月",v:"165台",c:"#60a5fa"},{l:"2026/2月",v:"587台",c:"#34d399"},{l:"Costco單月",v:"366台",c:"#10b981"},{l:"vs 2025月均",v:"▲351%",c:"#34d399"}].map((k,i)=>(
+                    <div key={i} style={{background:"#060d1a",borderRadius:8,padding:"9px 11px",border:"1px solid #1e3a5f"}}>
+                      <div style={{fontSize:9,color:"#4a6080",marginBottom:3}}>{k.l}</div>
+                      <div style={{fontSize:17,fontWeight:900,color:k.c}}>{k.v}</div>
+                    </div>
+                  ))}
                 </div>
               </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── 五、重點洞察與行動建議 ── */}
-      <div className="rpt-card">
-        <div className="rpt-sec-title">五、重點洞察與行動建議</div>
-        <div style={{ display:'flex', flexDirection:'column', gap:10 }}>
-          {insights.map((ins,i)=>(
-            <div key={i} style={{ display:'flex', gap:10, padding:'10px 12px',
-              background:'rgba(99,160,255,0.04)', borderRadius:8,
-              border:`1px solid ${ins.color}22`, borderLeft:`3px solid ${ins.color}` }}>
-              <div style={{ fontSize:12, fontWeight:700, color:'#4a6080', minWidth:18, paddingTop:1 }}>{i+1}.</div>
-              <div>
-                <div className="insight-title" style={{ fontSize:12, fontWeight:700, color:ins.color, marginBottom:4 }}>{ins.title}</div>
-                <div className="insight-text" style={{ fontSize:11, color:'#8da3c8', lineHeight:1.65 }}>{ins.text}</div>
+              <div style={{...S.card,border:"1px solid #f59e0b33"}}>
+                <div style={S.stit}>💰 潛在商機</div>
+                {[
+                  {name:"好市多",time:"2026/9月",qty:"1,500台",product:"K1M好市多版",contact:"Sean/Will/Maxine",color:"#34d399"},
+                  {name:"中嘉寬頻",time:"2026/8月",qty:"200台",product:"K1M標準版",contact:"Nini",color:"#f59e0b"},
+                ].map((o,i)=>(
+                  <div key={i} style={{background:"#060d1a",borderRadius:9,padding:"11px 13px",marginBottom:i===0?10:0,border:`1px solid ${o.color}33`}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
+                      <span style={{fontSize:13,fontWeight:800,color:o.color}}>{o.name}</span>
+                      <span style={{fontSize:18,fontWeight:900,color:o.color}}>{o.qty}</span>
+                    </div>
+                    <div style={{fontSize:11,color:"#94a3b8"}}>{o.product}　｜　{o.time}　｜　{o.contact}</div>
+                  </div>
+                ))}
+                <div style={{marginTop:10,padding:"8px 10px",background:"#0f2540",borderRadius:7,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                  <span style={{fontSize:11,color:"#94a3b8"}}>潛在商機合計</span>
+                  <span style={{fontSize:16,fontWeight:900,color:"#f59e0b"}}>1,700台</span>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      </div>
+          </div>
+        </>)}
 
-      {/* ── 頁尾 ── */}
-      <div style={{ fontSize:10, color:'#2a3a5a', textAlign:'center', padding:'12px 0', borderTop:'1px solid rgba(99,160,255,0.08)' }}>
-        資料來源：實銷內部統計20260325.xlsx ｜ 建達系列含東隆/三井/士展/希金
-      </div>
-    </div>
-  );
-}
-
-// ── App ──
-function App() {
-  const [tab, setTab] = useState("dashboard");
-  const tabs = [
-    {id:"dashboard",label:"📊 儀表板"},
-    {id:"customers",label:"🏪 通路管理"},
-    {id:"products", label:"📦 產品目錄"},
-    {id:"ai",       label:"🤖 AI 助理"},
-    {id:"report",   label:"📋 銷售報告"},
-    {id:"analysis", label:"📄 分析報告"},
-  ];
-  return (
-    <div style={{ minHeight:"100vh" }}>
-      <div style={{ padding:"12px 16px", background:"#0d1829", borderBottom:"1px solid rgba(99,160,255,0.15)",
-        display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-        <div style={{ fontWeight:700, fontSize:18, color:"#7eb3ff" }}>⚡ SalesAI <span style={{color:"#2dd4a8"}}>Pro</span></div>
-        <div style={{ fontSize:11, color:"#4a6080", flex:1, textAlign:"center" }}>零售通路 B2B 銷售管理系統</div>
-        <div style={{ fontSize:11, color:"#2dd4a8" }}>● AI 已連線</div>
-      </div>
-      <div style={{ display:"flex", gap:8, padding:"12px", background:"#0d1829", overflowX:"auto" }}>
-        {tabs.map(t => (
-          <button key={t.id} onClick={()=>setTab(t.id)} className={`tab-btn ${tab===t.id?"active":""}`}>{t.label}</button>
-        ))}
-      </div>
-      <div style={{ padding:16, paddingBottom:40 }}>
-        {tab==="dashboard" && <Dashboard />}
-        {tab==="ai"        && <AIChat />}
-        {tab==="customers" && <div style={{textAlign:"center",marginTop:40,color:"#4a6080"}}>請在電腦版查看完整「通路管理」列表</div>}
-        {tab==="products"  && <div style={{textAlign:"center",marginTop:40,color:"#4a6080"}}>請在電腦版查看「產品目錄」</div>}
-        {tab==="report"    && (
-          <div style={{textAlign:"center",marginTop:40,color:"#4a6080",padding:20,background:"#0d1829",borderRadius:12,border:"1px solid #1a3a7a"}}>
-            📋 AI 銷售報告生成<br/>
-            <button style={{background:"#4f8ef7",border:"none",color:"white",padding:"8px 16px",borderRadius:8,marginTop:15,cursor:"pointer"}}>🚀 生成報告</button>
+        {/* ── CLIENTS ── */}
+        {tab==="clients" && (
+          <div style={S.card}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14,flexWrap:"wrap",gap:8}}>
+              <div style={S.stit}>🏪 客戶管理（{fClients.length} 家）</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                <div style={{display:"flex",gap:3}}>
+                  {["全部","實體","電商"].map(f=><button key={f} style={S.bsm(cFilter===f)} onClick={()=>setCFilter(f)}>{f}</button>)}
+                </div>
+                <div style={{display:"flex",gap:3}}>
+                  {["全部","馬艾","建達","直營"].map(f=><button key={f} style={{...S.bsm(dFilter===f),borderColor:f==="全部"?"#1e3a5f":dlC[f]||"#1e3a5f"}} onClick={()=>setDFilter(f)}>{f}</button>)}
+                </div>
+              </div>
+            </div>
+            <div style={{overflowX:"auto"}}>
+              <table style={{width:"100%",borderCollapse:"collapse",minWidth:900}}>
+                <thead>
+                  <tr>{["通路名稱","經銷商","我方窗口","對方PM","採購窗口","類型","行業","2025+迄今","狀態","產品線"].map(h=><th key={h} style={S.th}>{h}</th>)}</tr>
+                </thead>
+                <tbody>
+                  {fClients.sort((a,b)=>b.y2025-a.y2025).map(c=>(
+                    <>
+                      <tr key={c.id} style={{cursor:"pointer"}}
+                        onClick={()=>setExpanded(expanded===c.id?null:c.id)}
+                        onMouseEnter={e=>e.currentTarget.style.background="#0d1f38"}
+                        onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                        <td style={{...S.td,fontWeight:700,color:"#e2e8f0"}}>
+                          {c.name}{c.note&&<span style={{fontSize:9,color:"#f59e0b",marginLeft:5}}>●</span>}
+                        </td>
+                        <td style={S.td}><span style={S.bdg(dlC[c.dealer]||"#64748b")}>{c.dealer}</span></td>
+                        <td style={{...S.td,color:"#94a3b8"}}>{c.myContact||"─"}</td>
+                        <td style={{...S.td,color:"#94a3b8"}}>{c.dealerPM||"─"}</td>
+                        <td style={{...S.td,color:"#94a3b8"}}>{c.channelContact||"─"}</td>
+                        <td style={S.td}><span style={S.bdg(c.type==="電商"?"#8b5cf6":"#3b82f6")}>{c.type}</span></td>
+                        <td style={{...S.td,color:"#64748b",fontSize:11}}>{c.industry}</td>
+                        <td style={{...S.td,fontWeight:800,color:c.y2025>=300?"#34d399":c.y2025>=100?"#60a5fa":c.y2025>0?"#94a3b8":"#4a6080"}}>
+                          {c.y2025>0?`${c.y2025}台`:"─"}
+                        </td>
+                        <td style={S.td}><span style={S.bdg(stC[c.stage]||"#64748b")}>{c.stage}</span></td>
+                        <td style={S.td}>
+                          <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
+                            {c.products.map(p=><span key={p} style={S.chp(lc[p]||"#64748b")}>{p}</span>)}
+                          </div>
+                        </td>
+                      </tr>
+                      {expanded===c.id&&c.note&&(
+                        <tr key={c.id+"x"}>
+                          <td colSpan={10} style={{...S.td,background:"#0a1628",padding:"8px 16px"}}>
+                            <span style={{fontSize:11,color:"#f59e0b"}}>📌 {c.note}</span>
+                          </td>
+                        </tr>
+                      )}
+                    </>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <div style={{marginTop:8,fontSize:10,color:"#4a6080"}}>● 點擊有黃點的列可展開備註</div>
           </div>
         )}
-        {tab==="analysis"  && <SalesReport />}
+
+        {/* ── PRODUCTS ── */}
+        {tab==="products" && (<>
+          <div style={{display:"flex",gap:6,marginBottom:14}}>
+            {["全部","家用K歌","車用麥克風","會議機"].map(f=>(
+              <button key={f} style={{...S.bsm(pLine===f),borderColor:f==="全部"?"#1e3a5f":lc[f]||"#1e3a5f",color:pLine===f?(lc[f]||"#60a5fa"):"#4a6080"}} onClick={()=>setPLine(f)}>{f}</button>
+            ))}
+          </div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(265px,1fr))",gap:12}}>
+            {PRODUCTS.filter(p=>pLine==="全部"||p.line===pLine).map(p=>{
+              const c=lc[p.line]||"#64748b";
+              return (
+                <div key={p.id} style={{...S.card,marginBottom:0,borderLeft:`3px solid ${c}`}}>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:7}}>
+                    <span style={S.chp(c)}>{p.line}</span>
+                    <span style={{fontSize:10,color:"#4a6080"}}>{p.id}</span>
+                  </div>
+                  <div style={{fontSize:13,fontWeight:800,color:"#e2e8f0",marginBottom:6,lineHeight:1.4}}>{p.name}</div>
+                  <div style={{fontSize:11,color:"#64748b",marginBottom:9,lineHeight:1.5}}>{p.desc}</div>
+                  <div style={{borderTop:"1px solid #1e3a5f",paddingTop:7,fontSize:10,color:"#4a6080"}}>SKU: {p.sku}</div>
+                </div>
+              );
+            })}
+          </div>
+        </>)}
+
+        {/* ── REPORT ── */}
+        {tab==="report" && (
+          <div style={S.card}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+              <div style={S.stit}>📋 AI 銷售報告生成 <span style={{fontSize:11,color:"#4a6080",fontWeight:400}}>2025/1 ~ 2026/2</span></div>
+              <button style={S.btn} onClick={genReport} disabled={rptLoading}>{rptLoading?"⏳ 生成中...":"🚀 生成完整報告"}</button>
+            </div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:14}}>
+              {LINES.map(line=>{
+                const t=LT[line]; const c=DATA[line].color;
+                return (
+                  <div key={line} style={{background:"#060d1a",border:`1px solid ${c}33`,borderRadius:9,padding:13}}>
+                    <div style={{fontSize:10,color:c,fontWeight:700,marginBottom:7}}>{line}</div>
+                    {[["2025實體",t.y25實],["2025電商",t.y25電],["2026迄今實體",t.y26實],["2026迄今電商",t.y26電]].map(([l,v])=>(
+                      <div key={l} style={{display:"flex",justifyContent:"space-between",marginBottom:3}}>
+                        <span style={{fontSize:10,color:"#64748b"}}>{l}</span>
+                        <span style={{fontSize:11,fontWeight:700,color:"#cbd5e1"}}>{v}台</span>
+                      </div>
+                    ))}
+                    <div style={{borderTop:"1px solid #1e3a5f",paddingTop:5,marginTop:5,display:"flex",justifyContent:"space-between"}}>
+                      <span style={{fontSize:11,color:"#94a3b8"}}>14個月合計</span>
+                      <span style={{fontSize:15,fontWeight:900,color:c}}>{t.合計}台</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {!report&&!rptLoading&&(
+              <div style={{textAlign:"center",padding:"44px 0",color:"#4a6080"}}>
+                <div style={{fontSize:40,marginBottom:10}}>📊</div>
+                <div>點擊「生成完整報告」，AI 自動分析 14 個月全通路數據</div>
+                <div style={{fontSize:11,marginTop:5,color:"#2a4a6a"}}>三大產品線 × 實體+電商 × 通路結構 × 2026 展望</div>
+              </div>
+            )}
+            {rptLoading&&<div style={{textAlign:"center",padding:"44px 0",color:"#4a6080"}}><div style={{fontSize:40,marginBottom:10}}>🤖</div><div>AI 分析中...</div></div>}
+            {report&&<div style={{background:"#060d1a",border:"1px solid #1e3a5f",borderRadius:9,padding:18,whiteSpace:"pre-wrap",fontSize:13,lineHeight:1.9,color:"#cbd5e1",maxHeight:520,overflowY:"auto"}}>{report}</div>}
+          </div>
+        )}
+
+        {/* ── CHAT ── */}
+        {tab==="chat" && (
+          <div style={S.card}>
+            <div style={S.stit}>🤖 AI 銷售助理</div>
+            <div style={{display:"flex",flexDirection:"column",height:500,background:"#060d1a",border:"1px solid #1e3a5f",borderRadius:11,overflow:"hidden"}}>
+              <div style={{flex:1,overflowY:"auto",padding:14,display:"flex",flexDirection:"column",gap:9}}>
+                {chatMsgs.map((m,i)=><div key={i} style={S.bub(m.role==="user")}>{m.content}</div>)}
+                {chatLoading&&<div style={{...S.bub(false),color:"#4a6080"}}>AI 思考中...</div>}
+                <div ref={chatEnd}/>
+              </div>
+              <div style={{display:"flex",gap:7,padding:11,borderTop:"1px solid #1e3a5f",background:"#0a1628"}}>
+                <input style={S.inp} value={chatInput} onChange={e=>setChatInput(e.target.value)}
+                  onKeyDown={e=>e.key==="Enter"&&sendChat()}
+                  placeholder="例：馬艾通路今年表現如何？好市多依賴風險怎麼管理？"/>
+                <button style={S.btn} onClick={sendChat} disabled={chatLoading}>{chatLoading?"...":"送出 →"}</button>
+              </div>
+            </div>
+            <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:10}}>
+              {["馬艾通路整體分析","好市多依賴風險","車用麥克風如何拓展實體？","2026下半年優先策略","中嘉寬頻洽談策略"].map(q=>(
+                <button key={q} style={{...S.bsm(),fontSize:11}} onClick={()=>setChatInput(q)}>{q}</button>
+              ))}
+            </div>
+          </div>
+        )}
+
       </div>
     </div>
   );
 }
 
-ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(<App />);
 </script>
 </body>
 </html>
